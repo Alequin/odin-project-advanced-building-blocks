@@ -1,14 +1,16 @@
 module Enumerable
 
   def my_each(&block)
-    for val in 0..(self.length-1)
-      block.call(self[val])
-    end
+      for val in self
+        block.call(val)
+      end
   end
 
   def my_each_with_index(&block)
-    for index in 0..(self.length-1)
-      block.call(index, self[val])
+    index = 0
+    for val in self
+      block.call(index, val)
+      index += 1
     end
   end
 
@@ -68,21 +70,31 @@ module Enumerable
       end
     }
 
+    puts "input"
     return result
 
   end
 
-  def my_count(&block)
-
-    if(block == nil)
-      return self.length
-    end
+  def my_count(*input)
 
     result = 0
 
+    if(input.empty? && !block_given?)
+      if(self.class.to_s == "Range")
+        self.my_each { |a| result += 1 }
+      else
+        result = self.length
+      end
+      return result
+    end
+
     self.my_each { |val|
-      if(block.call(val))
+      if(block_given? && yield(val))
         result += 1
+      else
+        if(input != nil && val == input[0])
+          result += 1
+        end
       end
     }
 
@@ -94,30 +106,53 @@ module Enumerable
     result = Array.new
 
     self.my_each { |val|
-      if(block.call(val))
-        result.push(val)
-      end
+      result.push(block.call(val))
     }
 
     return result
 
   end
 
+  def my_inject(*arg)
+          (arg == []) ? (memo = 0) : memo = arg[0]
+          self.my_each { |i| memo = yield(memo, i) }
+          memo
+  end
+  
   def my_inject(&block)
 
     result = nil
 
+    hash = self.class.to_s
+
+    if(hash == "Hash")
+      values = self.values
+    end
+
     self.my_each_with_index { |index, val|
-      if(index == 0)
-        result = val
+      if(hash == "Hash")
+        if(index == 0)
+          result = values[index]
+        else
+          result = block.call(result, values[index])
+        end
       else
-        result = block.call(result, val)
+        if(index == 0)
+          result = val
+        else
+          result = block.call(result, val)
+        end
       end
     }
 
     return result
-
   end
+
+  def Enumerable.multiply_els(array)
+    return array.my_inject { |sum, val| sum *= val }
+  end
+
+
 
 end
 
