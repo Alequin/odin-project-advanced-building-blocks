@@ -123,19 +123,15 @@ module Enumerable
 
     result = nil
 
+
     self.my_each_with_index { |index, val|
-      if(is_hash)
-        if(index == 0)
-          result = values[index]
-        else
-          result = block.call(result, values[index])
-        end
+
+      input = is_hash ? values[index] : val
+
+      if(index == 0)
+        result = input
       else
-        if(index == 0)
-          result = val
-        else
-          result = block.call(result, val)
-        end
+        result = block.call(result, input)
       end
     }
 
