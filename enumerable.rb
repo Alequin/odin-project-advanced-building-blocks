@@ -113,39 +113,12 @@ module Enumerable
 
   end
 
-  def my_inject(*arg)
-          (arg == []) ? (memo = 0) : memo = arg[0]
-          self.my_each { |i| memo = yield(memo, i) }
-          memo
-  end
-  
-  def my_inject(&block)
-
-    result = nil
-
-    hash = self.class.to_s
-
-    if(hash == "Hash")
-      values = self.values
-    end
-
-    self.my_each_with_index { |index, val|
-      if(hash == "Hash")
-        if(index == 0)
-          result = values[index]
-        else
-          result = block.call(result, values[index])
-        end
-      else
-        if(index == 0)
-          result = val
-        else
-          result = block.call(result, val)
-        end
-      end
-    }
-
-    return result
+  def my_inject *n
+		result = n[0] || result = 0
+		self.my_each do |i|
+			result = yield(result, i)
+		end
+		result
   end
 
   def Enumerable.multiply_els(array)
