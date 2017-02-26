@@ -113,19 +113,39 @@ module Enumerable
 
   end
 
-  def my_inject *n
-		result = n[0] || result = 0
-		self.my_each do |i|
-			result = yield(result, i)
-		end
-		result
+  def my_inject (&block)
+
+    is_hash = self.class.to_s == "Hash"
+
+    if(is_hash)
+      values = self.values
+    end
+
+    result = nil
+
+    self.my_each_with_index { |index, val|
+      if(is_hash)
+        if(index == 0)
+          result = values[index]
+        else
+          result = block.call(result, values[index])
+        end
+      else
+        if(index == 0)
+          result = val
+        else
+          result = block.call(result, val)
+        end
+      end
+    }
+
+    return result
+
   end
 
   def Enumerable.multiply_els(array)
     return array.my_inject { |sum, val| sum *= val }
   end
-
-
 
 end
 
